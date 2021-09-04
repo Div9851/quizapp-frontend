@@ -1,27 +1,46 @@
+import { useState, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import LoginButton from "components/LoginButton";
 import LogoutButton from "components/LogoutButton";
+import { get as GET } from "api";
 
-type Props = {
-  isLoggedIn: boolean;
+const Hello = () => {
+  const [name, setName] = useState("nanashi");
+  const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
+  useEffect(() => {
+    if (isAuthenticated) {
+      (async () => {
+        const token = await getAccessTokenSilently();
+        const response = await GET("/v1/users", token);
+        const user = await response.json();
+        setName(user.name);
+      })();
+    }
+  });
+  return (
+    <div>
+      <h1>Hello, {name}!</h1>
+      <h2>{user?.sub}</h2>
+    </div>
+  );
 };
 
-const Button: React.FC<Props> = ({ isLoggedIn }) => {
-  if (isLoggedIn) {
+const Button = () => {
+  const { isAuthenticated } = useAuth0();
+  if (isAuthenticated) {
     return <LogoutButton />;
   } else {
     return <LoginButton />;
   }
 };
 
-function App() {
-  const { isAuthenticated } = useAuth0();
+const App = () => {
   return (
     <div>
-      <h1>Hello, World!</h1>
-      <Button isLoggedIn={isAuthenticated} />
+      <Hello />
+      <Button />
     </div>
   );
-}
+};
 
 export default App;

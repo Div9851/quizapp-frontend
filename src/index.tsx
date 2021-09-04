@@ -8,6 +8,7 @@ ReactDOM.render(
     domain={env.domain}
     clientId={env.clientId}
     redirectUri={env.redirectUri}
+    audience={env.audience}
   >
     <App />
   </Auth0Provider>,
