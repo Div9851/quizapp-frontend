@@ -1,6 +1,6 @@
 import env from "env";
 
-const get = (api: string, token: string, queryParams: any = undefined) => {
+const GET = (api: string, token: string, queryParams: any = undefined) => {
   const uri = new URL(api, env.backendUri);
   if (queryParams) {
     for (const property in queryParams) {
@@ -15,7 +15,7 @@ const get = (api: string, token: string, queryParams: any = undefined) => {
   });
 };
 
-const post = (api: string, token: string, data: any) => {
+const POST = (api: string, token: string, data: any) => {
   const uri = new URL(api, env.backendUri);
   const requestBody = JSON.stringify(data);
   return fetch(uri.toString(), {
@@ -28,4 +28,17 @@ const post = (api: string, token: string, data: any) => {
   });
 };
 
-export { get, post };
+const PUT = (api: string, token: string, data: any) => {
+  const uri = new URL(api, env.backendUri);
+  const requestBody = JSON.stringify(data);
+  return fetch(uri.toString(), {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: requestBody,
+  });
+};
+
+export { GET, POST, PUT };

@@ -1,45 +1,30 @@
-import { useState, useEffect } from "react";
-import { useAuth0 } from "@auth0/auth0-react";
-import LoginButton from "components/LoginButton";
-import LogoutButton from "components/LogoutButton";
-import { get as GET } from "api";
-
-const Hello = () => {
-  const [name, setName] = useState("nanashi");
-  const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
-  useEffect(() => {
-    if (isAuthenticated) {
-      (async () => {
-        const token = await getAccessTokenSilently();
-        const response = await GET("/v1/users", token);
-        const user = await response.json();
-        setName(user.name);
-      })();
-    }
-  });
-  return (
-    <div>
-      <h1>Hello, {name}!</h1>
-      <h2>{user?.sub}</h2>
-    </div>
-  );
-};
-
-const Button = () => {
-  const { isAuthenticated } = useAuth0();
-  if (isAuthenticated) {
-    return <LogoutButton />;
-  } else {
-    return <LoginButton />;
-  }
-};
+import { primaryColor } from "colors";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { createTheme, ThemeProvider } from "@mui/material";
+import Home from "Home";
 
 const App = () => {
+  const theme = createTheme({
+    palette: {
+      primary: primaryColor,
+      secondary: {
+        main: "#089df4",
+      },
+    },
+    typography: {
+      fontFamily: "'M PLUS Rounded 1c', sans-serif",
+    },
+  });
   return (
-    <div>
-      <Hello />
-      <Button />
-    </div>
+    <ThemeProvider theme={theme}>
+      <Router>
+        <Switch>
+          <Route path="/">
+            <Home />
+          </Route>
+        </Switch>
+      </Router>
+    </ThemeProvider>
   );
 };
 
