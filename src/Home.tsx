@@ -1,5 +1,6 @@
-import { primaryColor } from "colors";
+import { primaryColor } from "common/colors";
 import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router";
 import { useAuth0 } from "@auth0/auth0-react";
 import {
   AppBar,
@@ -12,9 +13,11 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { GET, POST } from "api";
+import { GET, POST } from "common/api";
 import AccountMenuItems from "components/AccountMenuItems";
 import ProfileDialog from "components/ProfileDialog";
+import Loading from "components/Loading";
+import { UserInfo } from "common/types";
 import logo from "images/quiz_man_hatena.png";
 
 interface UsernameProps {
@@ -22,18 +25,21 @@ interface UsernameProps {
 }
 
 const Username = (props: UsernameProps) => {
-  if (props.name === "") {
+  const { name } = props;
+  if (name === "") {
     return <Typography>ログインしてください</Typography>;
   }
-  return <Typography>{props.name}</Typography>;
+  return <Typography>{name}</Typography>;
 };
 
 const Home = () => {
-  const { isAuthenticated, getAccessTokenSilently } = useAuth0();
-  const [username, setUsername] = useState<string>("");
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const { user, isAuthenticated, isLoading, getAccessTokenSilently } =
+    useAuth0();
+  const [myInfo, setMyInfo] = useState<UserInfo>({ name: "", picture: "" });
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const isMenuOpen = Boolean(anchorEl);
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+  const history = useHistory();
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -52,13 +58,15 @@ const Home = () => {
     setAnchorEl(null);
   };
 
-  const handleProfileDialogSave = (username: string) => {
-    setUsername(username);
+  const handleProfileDialogSave = (name: string) => {
+    setMyInfo((prev) => {
+      return { ...prev, name: name };
+    });
   };
 
   useEffect(() => {
-    (async () => {
-      if (isAuthenticated) {
+    if (isAuthenticated) {
+      (async () => {
         const token = await getAccessTokenSilently();
         const response = await GET("/v1/users", token);
         if (!response.ok) {
@@ -66,16 +74,22 @@ const Home = () => {
         }
         const users = await response.json();
         if (users.length === 0) {
-          await POST("/v1/users", token, {
+          const newUser: UserInfo = {
             name: "未設定",
-          });
-          setUsername("未設定");
+            picture: user?.picture || "",
+          };
+          await POST("/v1/users", token, newUser);
+          setMyInfo(newUser);
         } else {
-          setUsername(users[0].name);
+          setMyInfo(users[0]);
         }
-      }
-    })();
-  }, [isAuthenticated, getAccessTokenSilently]);
+      })();
+    }
+  }, [user, isAuthenticated, getAccessTokenSilently]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <>
@@ -83,10 +97,10 @@ const Home = () => {
         <Toolbar>
           <Tooltip title="アカウント設定">
             <IconButton size="small" sx={{ mr: 2 }} onClick={handleMenuOpen}>
-              <Avatar sx={{ width: 32, height: 32 }} />
+              <Avatar sx={{ width: 32, height: 32 }} src={myInfo.picture} />
             </IconButton>
           </Tooltip>
-          <Username name={username} />
+          <Username name={myInfo.name} />
         </Toolbar>
       </AppBar>
       <Menu
@@ -138,14 +152,14 @@ const Home = () => {
             fontSize: "1.2em",
           }}
           disabled={!isAuthenticated}
-          onClick={() => alert("not implemented")}
+          onClick={() => history.push("/room")}
           variant="contained"
         >
-          はじめる
+          対戦する
         </Button>
       </Box>
       <ProfileDialog
-        currentUsername={username}
+        myInfo={myInfo}
         open={profileDialogOpen}
         onClose={handleProfileDialogClose}
         onSave={handleProfileDialogSave}

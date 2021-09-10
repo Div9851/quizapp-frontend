@@ -1,4 +1,4 @@
-import env from "env";
+import env from "common/env";
 
 const GET = (api: string, token: string, queryParams: any = undefined) => {
   const uri = new URL(api, env.backendUri);

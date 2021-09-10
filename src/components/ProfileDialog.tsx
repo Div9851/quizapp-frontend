@@ -8,10 +8,11 @@ import {
 } from "@mui/material";
 import { ChangeEvent, useState, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import { PUT } from "api";
+import { PUT } from "common/api";
+import { UserInfo } from "common/types";
 
 interface ProfileDialogProps {
-  currentUsername: string;
+  myInfo: UserInfo;
   open: boolean;
   onClose: () => void;
   onSave: (username: string) => void;
@@ -19,19 +20,17 @@ interface ProfileDialogProps {
 
 const ProfileDialog = (props: ProfileDialogProps) => {
   const { getAccessTokenSilently } = useAuth0();
-  const { currentUsername, open, onClose, onSave } = props;
+  const { myInfo, open, onClose, onSave } = props;
   const [username, setUsername] = useState("");
-  const [usernameHelperText, setUsernameHelperText] = useState<null | string>(
-    null
-  );
-  const usernameError = Boolean(usernameHelperText);
+  const [usernameHelperText, setUsernameHelperText] = useState("");
+  const usernameError = usernameHelperText !== "";
 
   useEffect(() => {
     if (open) {
-      setUsername(currentUsername);
-      setUsernameHelperText(null);
+      setUsername(myInfo.name);
+      setUsernameHelperText("");
     }
-  }, [currentUsername, open, setUsername]);
+  }, [myInfo, open, setUsername]);
 
   const handleSave = () => {
     if (usernameError) {
@@ -41,6 +40,7 @@ const ProfileDialog = (props: ProfileDialogProps) => {
       const token = await getAccessTokenSilently();
       await PUT("/v1/users", token, {
         name: username,
+        picture: myInfo.picture,
       });
     })();
     onSave(username);
@@ -51,7 +51,7 @@ const ProfileDialog = (props: ProfileDialogProps) => {
     if (e.target.value === "") {
       setUsernameHelperText("0文字にはできません");
     } else {
-      setUsernameHelperText(null);
+      setUsernameHelperText("");
     }
     setUsername(e.target.value);
   };
