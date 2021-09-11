@@ -44,8 +44,7 @@ const Room = () => {
   const [roomStatus, setRoomStatus] = useState<Status>("waiting");
   const [pos, setPos] = useState(new Counter());
   const [posTimer, setPosTimer] = useState<NodeJS.Timeout | null>(null);
-  const [limit, setLimit] = useState(new Counter());
-  const [enableLimit, setEnableLimit] = useState(false);
+  const [limit, setLimit] = useState(new Counter(50, 50));
   const [limitTimer, setLimitTimer] = useState<NodeJS.Timeout | null>(null);
   const [countdown, setCountdown] = useState(new Counter());
   const [countdownTimer, setCountdownTimer] = useState<NodeJS.Timeout | null>(
@@ -82,7 +81,7 @@ const Room = () => {
     socket.on("next", () => {
       setQuestionNumber((n) => n + 1);
       setPos(new Counter());
-      setLimit(new Counter());
+      setLimit(new Counter(50, 50));
       setRoomStatus("next question");
       socket.emit("ready");
     });
@@ -97,7 +96,6 @@ const Room = () => {
       setPos(
         new Counter(0, recv.length, "up", false, () => {
           clearInterval(posTm);
-          setEnableLimit(true);
           const limitTm = setInterval(() => {
             setLimit((prev: Counter) => prev.tick());
           }, 100);
@@ -105,7 +103,6 @@ const Room = () => {
           setLimit(
             new Counter(50, 0, "down", false, () => {
               clearInterval(limitTm);
-              setEnableLimit(false);
               socket.emit("timeup");
             })
           );
@@ -190,7 +187,6 @@ const Room = () => {
       setPos((prev) => {
         return { ...prev, value: prev.endValue, tick: prev.tick };
       });
-      setEnableLimit(false);
       setAnswer(recv);
       setRoomStatus("end question");
     });
@@ -230,15 +226,13 @@ const Room = () => {
           roomStatus === "thinking" || roomStatus === "end question"
         }
       />
+      <LinearProgress
+        variant="determinate"
+        value={limit.value * 2}
+        sx={{ color: primaryColor.dark }}
+      />
       {roomStatus === "thinking" || roomStatus === "end question" ? (
         <>
-          {roomStatus === "thinking" && enableLimit ? (
-            <LinearProgress
-              variant="determinate"
-              value={limit.value * 2}
-              sx={{ color: primaryColor.dark }}
-            />
-          ) : null}
           <Box display="flex" p={2}>
             <Typography fontSize="1.2em">Q.</Typography>
             <Typography fontSize="1.2em">

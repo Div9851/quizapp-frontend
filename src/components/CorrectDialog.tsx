@@ -10,7 +10,7 @@ const CorrectDialog = (props: CorrectDialogProps) => {
   const { open } = props;
 
   return (
-    <Dialog open={open} PaperProps={{ sx: { width: "50vw" } }}>
+    <Dialog open={open} PaperProps={{ sx: { width: "80vw" } }}>
       <DialogContent>
         <Box
           display="flex"

@@ -60,7 +60,7 @@ const ProfileDialog = (props: ProfileDialogProps) => {
     <Dialog
       open={open}
       onClose={onClose}
-      PaperProps={{ sx: { width: "50vw" } }}
+      PaperProps={{ sx: { width: "80vw" } }}
     >
       <DialogTitle>プロフィール</DialogTitle>
       <DialogContent>

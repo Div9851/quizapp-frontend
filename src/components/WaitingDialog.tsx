@@ -17,7 +17,7 @@ const WaitingDialog = (props: WaitingDialogProps) => {
   const { open, onClose } = props;
 
   return (
-    <Dialog open={open} PaperProps={{ sx: { width: "50vw" } }}>
+    <Dialog open={open} PaperProps={{ sx: { width: "80vw" } }}>
       <DialogTitle>対戦相手を探しています</DialogTitle>
       <DialogContent>
         <Box display="flex">

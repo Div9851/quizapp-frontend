@@ -26,7 +26,7 @@ const AnsweringDialog = (props: AnsweringDialogProps) => {
     </Button>
   ));
   return (
-    <Dialog open={open} PaperProps={{ sx: { width: "50vw" } }}>
+    <Dialog open={open} PaperProps={{ sx: { width: "80vw" } }}>
       <DialogTitle
         sx={{
           display: "flex",

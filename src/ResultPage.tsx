@@ -68,13 +68,13 @@ const ResultPage = (props: ResultPageProps) => {
         ) : null}
         <Box display="flex" alignItems="center" justifyContent="center">
           <CustomAvatar userInfo={myInfo} score={myScore} />
-          <Typography fontSize="1.5em" sx={{ ml: 10, mr: 10 }}>
+          <Typography fontSize="1.5em" sx={{ ml: 6, mr: 6 }}>
             VS
           </Typography>
           <CustomAvatar userInfo={opponentInfo} score={opponentScore} />
         </Box>
       </Box>
-      <Box display="flex" justifyContent="center" sx={{ mt: "20vh" }}>
+      <Box display="flex" justifyContent="center" sx={{ mt: "15vh" }}>
         <Button sx={{ fontSize: "1.5em" }} onClick={() => history.push("/")}>
           ホームに戻る
         </Button>
